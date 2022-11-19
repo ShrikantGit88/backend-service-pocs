@@ -32,7 +32,7 @@ public class UserController {
         return userService.getAllUsers();
     }
     //get user by ID REST API using url template variable
-    //http://localhost:8080/api/users/1
+    //http://localhost:8080/api/users/2
     @GetMapping("{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long userId) {
 
