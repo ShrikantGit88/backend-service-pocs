@@ -4,10 +4,10 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.UserModificationException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 //@Transactional annotation is not required as its taken cared by spring-data-jpa
@@ -21,9 +21,6 @@ public class UserServiceImpl implements UserService{
         super();
         this.userRepository = userRepository;
     }
-
-    @Autowired
-    private ParentComponent parentComponent;
 
     @Override
     public User saveUser(User user) {
@@ -43,7 +40,6 @@ public class UserServiceImpl implements UserService{
 //        } else {
 //            return new ResourceNotFoundException("User", "Id", id);
 //        }
-        parentComponent.executeSomeLogic();
         return  userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("User", "Id", id));
     }

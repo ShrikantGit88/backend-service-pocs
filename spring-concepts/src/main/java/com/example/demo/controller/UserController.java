@@ -17,9 +17,11 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
      private UserService userService;
+
      @Autowired
-     //@Qualifier("circle")
+     @Qualifier("circle")
      Shape shape;
+
     public UserController(UserService userService) {
         super();
         this.userService = userService;
@@ -41,7 +43,7 @@ public class UserController {
     }
 
     //get user by ID REST API using url template variable
-    //http://localhost:8080/api/users/2
+    //http://localhost:8080/api/users/1
     @GetMapping("{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long userId) {
         return new ResponseEntity<User>(userService.getUserById(userId), HttpStatus.OK);
