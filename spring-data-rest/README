@@ -1,0 +1,27 @@
+RESTful webservice method types
+1. GET: http://localhost:8080/posts
+//post method used to create new resource every time, not idempotent
+2. POST: http://localhost:8080/posts
+     payload: {
+                "subject": "facebookpost",
+                "user_id": 17
+              }
+
+//put method used to update existing resource, its a idempotent, complete details of resource is required
+//used to completely replace resource data with data passed in payload
+3.PUT : http://localhost:8080/posts/2
+     payload: {
+                "subject": "morning-post",
+                "user_id": 19
+              }
+//patch method is used to partially update an existing resource, partial data can be passed to payload
+4.PATCH: http://localhost:8080/posts/2
+     payload: {
+                "subject": "evening-post"
+
+//delete method is used to remove post with id 2 from database              }
+5.DELETE: http://localhost:8080/posts/2
+
+6.HEAD: http://localhost:8080/posts/2
+
+7.OPTIONS: http://localhost:8080/posts/2

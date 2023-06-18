@@ -1,15 +1,18 @@
 package com.example.demo.controller;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.User;
 import com.example.demo.service.impl.UserService;
-import com.example.demo.springlearning.Shape;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @RestController
 //this annotation combines @Controller and @ResponseBody annotation which eliminates need to
@@ -17,9 +20,7 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
      private UserService userService;
-     @Autowired
-     //@Qualifier("circle")
-     Shape shape;
+
     public UserController(UserService userService) {
         super();
         this.userService = userService;
@@ -28,23 +29,45 @@ public class UserController {
     //Create user REST API
     @PostMapping
     public ResponseEntity<User> saveUser(@RequestBody  User user) {
-        return new ResponseEntity<User>(userService.saveUser(user), HttpStatus.CREATED);
+        System.out.println("inside post method "+user.toString());
+        return new ResponseEntity<User>(userService.saveUser(user), HttpStatus.OK);
     };
 
     //get all users REST API
+    //http://localhost:8080/api/users
     @GetMapping
     public List<User> getAllUsers() {
-        System.out.println("Inside getAllUsers");
-        System.out.println(Runtime.getRuntime().availableProcessors());
-        shape.draw();
+        System.out.println("Inside getAllUsers... "+ LocalDateTime.now());
         return userService.getAllUsers();
     }
 
+    //http://localhost:8080/api/users
+    @GetMapping("test")
+    public String testHibernate() {
+        System.out.println("Inside testHibernate... "+ LocalDateTime.now());
+        //System.out.println(Runtime.getRuntime().availableProcessors());
+        userService.hibernateTest();
+        return "OK";
+    }
     //get user by ID REST API using url template variable
     //http://localhost:8080/api/users/2
     @GetMapping("{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") long userId) {
-        return new ResponseEntity<User>(userService.getUserById(userId), HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Custom-Header","foo");
+        headers.add("xyz","abc");
+        return new ResponseEntity<>(userService.getUserById(userId), headers, HttpStatus.ACCEPTED);
+    }
+
+    //get user by ID REST API using url template variable
+    //http://localhost:8080/api/users/fetch?userId=2
+    @GetMapping("/fetch")
+    public User getUserByIdParam(@RequestParam Long userId) {
+        User user = userService.getUserById(userId);
+        if(Objects.isNull(user)){
+            throw new ResourceNotFoundException("Users not found **", "demo","demo");
+        }
+        return user;
     }
 
     //update user by Id REST API
@@ -58,5 +81,14 @@ public class UserController {
     public ResponseEntity<String> deleteUserById(@PathVariable("id") long userId) {
         userService.deleteUser(userId);
         return new ResponseEntity<String>("User has been deleted successfully", HttpStatus.OK);
+    }
+    //http://localhost:8080/api/users
+    @GetMapping("byemails")
+    public List<User> findUsersByEmails() {
+        Set<String> emailids = new HashSet<>();
+        emailids.add("abcd@gmail.com");
+        emailids.add("xyz@gmail.com");
+        System.out.println("Inside findUsersByEmails... "+emailids);
+        return userService.findUsersByEmails(emailids);
     }
 }

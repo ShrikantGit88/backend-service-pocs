@@ -4,10 +4,14 @@ import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.exception.UserModificationException;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
 
 @Service
 //@Transactional annotation is not required as its taken cared by spring-data-jpa
@@ -23,9 +27,30 @@ public class UserServiceImpl implements UserService{
     }
 
     @Autowired
-    private ParentComponent parentComponent;
+    SessionFactory sessionFactory;
 
+    public void hibernateTest(){
+
+        System.out.println("sessionFactory().getObject() "+sessionFactory.toString());
+        Session session = sessionFactory.openSession();
+        session.beginTransaction();
+        User user = new User();
+        user.setId(11l);
+        user.setEmail("shri@gmail.com");
+        //User user1 = session.load(User.class, 11l);
+
+//        session.evict(user1);
+//        user1 = session.load(User.class, 11l);
+//
+//        session.update(user1);
+//        user.setUsername("new2");
+//        session.persist(user);
+        session.getTransaction().commit();
+        System.out.println(" >>>"+user.getId());
+        session.close();
+    }
     @Override
+    @Transactional
     public User saveUser(User user) {
         return userRepository.save(user);
     }
@@ -43,7 +68,7 @@ public class UserServiceImpl implements UserService{
 //        } else {
 //            return new ResourceNotFoundException("User", "Id", id);
 //        }
-        parentComponent.executeSomeLogic();
+
         return  userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("User", "Id", id));
     }
@@ -52,8 +77,7 @@ public class UserServiceImpl implements UserService{
     public User updateUser(User user, long id) {
         User existingUser =userRepository.findById(id).orElseThrow(() ->
                 new UserModificationException("User", id));
-        existingUser.setUsername(user.getUsername());
-        existingUser.setPassword(user.getPassword());
+        existingUser.setEmail(user.getEmail());
 
         userRepository.save(existingUser);
         return existingUser;
@@ -64,5 +88,10 @@ public class UserServiceImpl implements UserService{
         User existingUser =userRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("User", "Id", id));
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public List<User> findUsersByEmails(Set<String> emails) {
+        return userRepository.findUsersByEmails(emails);
     }
 }
